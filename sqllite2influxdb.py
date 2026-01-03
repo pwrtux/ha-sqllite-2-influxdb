@@ -73,9 +73,9 @@ def get_oldest_influx_timestamp(query_api):
 
 def format_timestamp(oldest_timestamp):
     try:
-        # Convert ISO format timestamp to a string format compatible with SQLite
-        dt_obj = datetime.fromisoformat(oldest_timestamp.replace('Z', ''))
-        return dt_obj.strftime("%Y-%m-%d %H:%M:%S")
+        # Convert ISO format timestamp to Unix timestamp for SQLite comparison
+        dt_obj = datetime.fromisoformat(oldest_timestamp.replace('Z', '+00:00'))
+        return dt_obj.timestamp()
     except ValueError as e:
         logging.error(f"Error parsing timestamp: {e}")
         exit(1)
@@ -132,7 +132,7 @@ def batch_insert_to_influx(write_api, rows):
                 if key in ["id", "id_str", "update_available"]:
                     continue
                 try:
-                    if key in ["temperature", "humidity", "voc", "formaldehyd", "co2", "linkquality"]:
+                    if key in ["temperature", "humidity", "voc", "formaldehyde", "co2", "linkquality"]:
                         point.field(key, float(value))
                     elif isinstance(value, (int, float)) or (isinstance(value, str) and value.replace('.', '', 1).isdigit()):
                         point.field(key, float(value))
