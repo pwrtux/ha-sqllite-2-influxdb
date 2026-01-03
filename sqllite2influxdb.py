@@ -32,6 +32,7 @@ if any(v is None for v in required_env_vars):
     exit(1)
 
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", 10000))
+INFLUXDB_TIMEOUT = int(os.getenv("INFLUXDB_TIMEOUT_MS", 30000))
 
 def connect_to_sqlite(db_path):
     try:
@@ -47,7 +48,7 @@ def connect_to_sqlite(db_path):
 def connect_to_influxdb(url, token, org):
     try:
         # Connect to InfluxDB with timeout and return the client, write and query APIs
-        client = InfluxDBClient(url=url, token=token, org=org, timeout=30_000)
+        client = InfluxDBClient(url=url, token=token, org=org, timeout=INFLUXDB_TIMEOUT)
         logging.info("Successfully connected to InfluxDB")
         return client, client.write_api(write_options=SYNCHRONOUS), client.query_api()
     except Exception as e:
